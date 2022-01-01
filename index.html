@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>maisu</title>
+  </head>
+  <style>
+    #app {
+      background-image: url(./images/gold.jpg);
+      background-size: cover;
+      background-position: center;
+      margin: 0 auto;
+      width: clamp(500px, 600px, 100%);
+    }
+    body {
+      font-family: "Helvetica Neue", "Helvetica", "Arial",
+        "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    }
+    p {
+      font-size: 100px;
+      font-weight: 900;
+      margin: 0;
+    }
+    span {
+      text-align: right;
+      margin: 10px;
+      margin-left: auto;
+      display: block;
+    }
+  </style>
+  <body>
+    <div id="app">
+      <h4>横幅 width: {{ width||"0" }}ｍ</h4>
+      <input
+        v-model.number="width"
+        type="number"
+        name="width"
+        placeholder="例 5.5"
+        step="0.1"
+      />
+      <h4>縦幅 length: {{ length||"0" }}ｍ</h4>
+      <input
+        v-model.number="length"
+        type="number"
+        placeholder="例 2.5"
+        step="0.1"
+      />
+
+      <h1>面積: {{ area||"0" }}㎡</h1>
+      <h6>
+        ※
+        開口面積を入力することで開口分を差し引いた面積を求めることができます(開口がない場合は無記入)
+      </h6>
+      <h4>開口横幅 open-Width: {{ openWidth||"0" }}ｍ</h4>
+      <input
+        v-model.number="openWidth"
+        type="number"
+        placeholder="例 5.5"
+        step="0.1"
+      />
+      <h4>開口高さ openLength: {{ openLength||"0" }}ｍ</h4>
+      <input
+        v-model.number="openLength"
+        type="number"
+        placeholder="例 2.5"
+        step="0.1"
+      />
+      <h1>開口面積: {{ openArea }}㎡</h1>
+      <h1>面積-開口面積={{ totalArea }}㎡</h1>
+      <input
+        type="radio"
+        :value="'見切り(1.82㎜):' + mall + '本'"
+        v-model="mikiri"
+        name="mikiri"
+      />
+      見切り あり
+      <input type="radio" value="0" v-model="mikiri" name="mikiri" /> 見切り
+      なし
+      <h1>{{ mikiri }}</h1>
+
+      <h2>材料の選択</h2>
+      <select v-model="materialType">
+        <option disabled value="">材料の種類を選択してください</option>
+        <optgroup label="wall(壁)片面">
+          <option
+            :value="'総材料面積:'+ totalArea + '㎡:' + 'ボード(3x6):' + board + '枚' + ' : ' + 'ビス' + screwCase + '箱'"
+          >
+            ボード(3x6)
+          </option>
+
+          <option
+            :value="'総材料面積:' + totalArea * 2 + '㎡:' + '1層目ボード(2x6):' + board2x6 + '枚' + ' : ' + 'ビス' + screwCase + '箱' + '-' + '2層目ボード(3x6):' + board + '枚' + ' : ' + 'ステープル:' + staple + '箱'"
+          >
+            1層目ボード(2x6)+2層目ボード(3x6)
+          </option>
+          <option
+            :value="'総材料面積:' + totalArea * 2 + '㎡:' + '1層目ボード(3x6):' + board + '枚' + ' : ' + 'ビス' + screwCase + '箱' + '-' + '2層目ボード(3x6):' + board + '枚' + ' : ' + 'ステープル:' + staple + '箱'"
+          >
+            1層目ボード(3x6)+2層目ボード(3x6)
+          </option>
+        </optgroup>
+        <optgroup label="wall(壁)両面">
+          <option
+            :value="'総材料面積:' + totalArea * 2 + '㎡:' + 'ボード(3x6):' + board * 2 + '枚' + ' : ' + 'ビス' + screwCase + '箱'"
+          >
+            ボード(3x6)
+          </option>
+
+          <option
+            :value="'総材料面積:' + totalArea * 4 + '㎡:' + '1層目ボード(2x6):' + board2x6 * 2 + '枚' + ' : ' + 'ビス' + screwCase + '箱' + '-' + '2層目ボード(3x6):' + board * 2 + '枚' + ' : ' + 'ステープル:' + staple + '箱'"
+          >
+            1層目ボード(2x6)+2層目ボード(3x6)
+          </option>
+          <option
+            :value="'総材料面積:' + totalArea * 4 + '㎡:' + '1層目ボード(3x6):' + board * 2+ '枚' + ' : ' + 'ビス' + screwCase + '箱' + '-' + '2層目ボード(3x6):' + board * 2 + '枚' + ' : ' + 'ステープル:' + staple + '箱'"
+          >
+            1層目ボード(3x6)+2層目ボード(3x6)
+          </option>
+        </optgroup>
+        <optgroup label="ceil(天井)">
+          <option
+            :value="'総材料面積:' + totalArea + '㎡:' + 'ジプトン(3x3):' + gip3x3Case + 'ケース' + ' : '  + 'ビス' + gip3x3screwCase +'箱'"
+          >
+            ジプトン(3x3)
+          </option>
+          <option
+            :value="'総材料面積:' + totalArea + '㎡:' + 'ジプトン(3x3):' + gip15x3Case + 'ケース' + ' : '  + 'ビス' + gip15x3screwCase +'箱'"
+          >
+            ジプトン(1.5x3)
+          </option>
+          <option
+            :value="'総材料面積:' + totalArea + '㎡:' + 'ソーラトン/ボード' + 'ボード(3x6):' + board + '枚' + ' : ' + 'ビス' + screwCase + '箱' + 'ソーラトン:' + soraCase + 'ケース' + ' : '  + 'ビス' + screwCase + '箱' + ' : '  + 'ステープル' + staple +'箱'"
+          >
+            ソーラトン
+          </option>
+        </optgroup>
+      </select>
+      <h1>{{ materialType }}</h1>
+      <h4>
+        ※ 一度計算が完了した後に[面積,もしくは
+        開口面積]の数値変更があった場合は材料の選択を再度確認してください。材料選択欄が空白の場合正しく計算されません
+      </h4>
+      <h6>※ 一般的な入数目安: 1箱(1000本入り) ステープル: 1箱(5000本入り)</h6>
+      <h6>※ 正確な材料数は状況により異なりますので目安としてお使いいただき適宜調整してください</h6>
+    <h6>※ 数値の入力は半角数字です</h6>
+      <div>
+        <p>まいすー</p>
+        <span>produced by yut</span>
+      </div>
+    </div>
+    <!-- #app -->
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            item: "item",
+            width: "",
+            length: "",
+            openWidth: "",
+            openLength: "",
+            materialType: "",
+            mikiri: "",
+          };
+        },
+        computed: {
+          area() {
+            return (this.width * this.length);
+          },
+          openArea() {
+            return (this.openWidth * this.openLength);
+          },
+          totalArea() {
+            return (this.area - this.openArea);
+          },
+          both() {
+            return (this.both = this.area * 2);
+          },
+          board() {
+            return Math.ceil(this.totalArea / (0.91 * 1.82));
+          },
+          board2x6() {
+            return Math.ceil(this.totalArea / (0.66 * 1.82));
+          },
+          gip3x3() {
+            return Math.ceil(this.totalArea / (0.91 * 0.91));
+          },
+          gip3x3Case() {
+            return Math.ceil(this.gip3x3 / 4);
+          },
+          gip15x3() {
+            return Math.ceil(this.totalArea / (0.91 * 0.45));
+          },
+          gip15x3Case() {
+            return Math.ceil(this.gip15x3 / 8);
+          },
+          sora() {
+            return Math.ceil(this.totalArea / (0.3 * 0.6));
+          },
+          soraCase() {
+            return Math.ceil(this.totalArea / 3.24);
+          },
+          mall() {
+            return Math.ceil(this.area / 1.82);
+          },
+          screw() {
+            return Math.ceil(this.board * 30);
+          },
+          screwCase() {
+            return Math.ceil(this.screw / 1000);
+          },
+          gip3x3screw() {
+            return Math.ceil(this.gip3x3 * 27);
+          },
+          gip3x3screwCase() {
+            return Math.ceil((this.gip3x3 * 27) / 1000);
+          },
+          gip15x3screw() {
+            return Math.ceil(this.gip15x3 * 19);
+          },
+          gip15x3screwCase() {
+            return Math.ceil((this.gip15x3 * 19) / 1000);
+          },
+          staple() {
+            return Math.ceil((this.sora * 30) / 5000);
+          },
+
+          // board() {
+          //   return Math.ceil(this.area / (0.91 * 1.82));
+          // },
+          // gip3x3() {
+          //   return Math.ceil(this.area / (0.91 * 0.91));
+          // },
+          // gip3x3Case() {
+          //   return Math.ceil(this.gip3x3 / 4);
+          // },
+          // gip15x3() {
+          //   return Math.ceil(this.area / (0.91 * 0.45));
+          // },
+          // gip15x3Case() {
+          //   return Math.ceil(this.gip15x3 / 8);
+          // },
+          // sora() {
+          //   return Math.ceil(this.area / (0.3 * 0.6));
+          // },
+          // soraCase() {
+          //   return Math.ceil(this.area / 3.24);
+          // },
+          // mall() {
+          //   return Math.ceil(this.area / 1.82);
+          // },
+          // screw() {
+          //   return Math.ceil(this.board * 30);
+          // },
+          // screwCase() {
+          //   return Math.ceil(this.screw / 1000);
+          // },
+          // gip3x3screw() {
+          //   return Math.ceil(this.gip3x3 * 27);
+          // },
+          // gip3x3screwCase() {
+          //   return Math.ceil((this.gip3x3 * 27) / 1000);
+          // },
+          // gip15x3screw() {
+          //   return Math.ceil(this.gip15x3 * 19);
+          // },
+          // gip15x3screwCase() {
+          //   return Math.ceil((this.gip15x3 * 19) / 1000);
+          // },
+          // staple() {
+          //   return Math.ceil((this.sora * 30) / 5000);
+          // },
+          // openArea() {
+          //   return this.openWidth * this.openLength;
+          // },
+          // totalArea() {
+          //   return this.totalArea = this.area - this.openArea;
+          // },
+        },
+      });
+      app.mount("#app");
+    </script>
+  </body>
+</html>
